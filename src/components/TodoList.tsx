@@ -1,6 +1,7 @@
 import { memo, useState } from 'react';
 import TodoItem from './TodoItem';
 import { Todo } from '@/lib/db/todoDb';
+import { useTodoDispatcher } from '@/lib/hooks/useTodoDispatcher';
 
 interface TodoListProps {
   todos: Todo[];
@@ -18,11 +19,21 @@ const TodoList = memo(function TodoList({
   onSearch
 }: TodoListProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  
+  const {
+    dispatchComplete,
+    dispatchDelete,
+    dispatchSearch
+  } = useTodoDispatcher({
+    onComplete: onCompleteTodo,
+    onDelete: onDeleteTodo,
+    onSearch: onSearch
+  });
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
-    onSearch(query);
+    dispatchSearch(query);
   };
 
   if (isLoading) {
@@ -57,8 +68,8 @@ const TodoList = memo(function TodoList({
               title={todo.title}
               description={todo.description}
               completed={todo.completed}
-              onComplete={() => onCompleteTodo(todo.id)}
-              onDelete={() => onDeleteTodo(todo.id)}
+              onComplete={() => dispatchComplete(todo.id)}
+              onDelete={() => dispatchDelete(todo.id)}
             />
           ))
         )}
